@@ -1,20 +1,20 @@
-#root {
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-}
-body{
-  /* background-image: url('/images/fablab.jpg'); */
+} */
+/* body{
+ 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   height: 100vh;
   margin: 10;
   font-family: Arial, Helvetica, sans-serif;
-}
+} */
 
-.container {
+/* .container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -22,7 +22,7 @@ body{
   justify-content: center;
   text-align: center;
   padding: 50px;
-}
+} */
 
 .logo {
   height: 6em;
