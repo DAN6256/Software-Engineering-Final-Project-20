@@ -1,10 +1,42 @@
+// import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import ProfileView from "./ProfileView";
 import "./index.css";
+import { signup } from "./auth";
+
 
 function App() {
+  const[signUpData, setsignUpData] = useState({
+    name: "",
+    email: "",
+    yearGroup: "",
+    role: "Student",
+    major: "",
+    password: "",
+  });
+  
+  const handleChange = (e) => {
+    setsignUpData({ ...signUpData, [e.target.name]: e.target.value});
+  }
+
+  const handleSignup = async(event) =>{
+    event.preventDefault();
+    try{
+      const data = await signup(signUpData);
+      console.log(data);
+      setsignUpData({name: "", email: "", yearGroup: "", major: "", password: ""});
+      alert("Signup Successful");
+      // navigate("/Home.jsx")
+    }
+    catch(error){
+      console.log(error);
+      alert("Signup failed");
+    }
+  }
+
+
   const [showProfile, setShowProfile] = useState(false);
   const [showModal, setShowModal] = useState(null); // Track which modal is open
   const [user, setUser] = useState({
@@ -20,7 +52,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <Navbar showProfile={showProfile} setShowProfile={setShowProfile} user={user} />
+      {/* <Navbar showProfile={showProfile} setShowProfile={setShowProfile} user={user} /> */}
       <main className="main-content">
         {showProfile ? (
           <ProfileView user={user} onUpdateUser={handleProfileUpdate} onClose={() => setShowProfile(false)} />
@@ -52,13 +84,17 @@ function App() {
         )}
       </main>
 
-      {/* Register Modal */}
-      {showModal === "register" && (
+{/* Register Modal */}
+        {showModal === "register" && (
         <Modal title="Register" onClose={() => setShowModal(null)}>
-          <form className="form-container">
-            <input type="text" placeholder="Full Name" className="input-field" required />
-            <input type="email" placeholder="Email" className="input-field" required />
-            <input type="password" placeholder="Password" className="input-field" required />
+          <form className="form-container" onSubmit={handleSignup}>
+
+          <input type="text" name="name" placeholder="Full Name" className="input-field" value={signUpData.name} onChange={handleChange} required />
+          <input type="text" name="major" placeholder="Major" className="input-field" value={signUpData.major} onChange={handleChange} required />
+          <input type="number" name="yearGroup" placeholder="Class" className="input-field" value={signUpData.class} onChange={handleChange} required />
+          <input type="email" name="email" placeholder="Email" className="input-field" value={signUpData.email} onChange={handleChange} required />
+          <input type="password" name="password" placeholder="Password" className="input-field" value={signUpData.password} onChange={handleChange} required />
+          <br></br>
             <button type="submit" className="submit-button">Sign Up</button>
           </form>
         </Modal>
