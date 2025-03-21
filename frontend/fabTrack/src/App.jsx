@@ -4,14 +4,10 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import ProfileView from "./ProfileView";
 import "./index.css";
-import { signup } from "./api/auth";
+import { signup } from "./auth";
 
 
 function App() {
-  // const navigate = useNavigate();
-
-  
-  
   const[signUpData, setsignUpData] = useState({
     name: "",
     email: "",
