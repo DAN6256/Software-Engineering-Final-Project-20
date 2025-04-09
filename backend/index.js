@@ -6,6 +6,7 @@ const setupSwagger = require('./src/config/swagger');
 const models = require('./src/models');
 
 const authRoutes = require('./src/routes/auth.routes');
+const equipmentRoutes = require('./src/routes/equipment.routes');
 
 
 const app = express();
@@ -15,6 +16,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/equipment', equipmentRoutes);
+
 
 
 setupSwagger(app);
