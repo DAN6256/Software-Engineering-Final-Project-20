@@ -1,10 +1,11 @@
-// import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import Navbar from "./Navbar";
 import Footer from "./Footer";
 import ProfileView from "./ProfileView";
 import "./index.css";
 import { signup } from "./auth";
+import Navbar from "./NavBar";
+import Admin from "./Admin";
 
 
 function App() {
@@ -21,14 +22,15 @@ function App() {
     setsignUpData({ ...signUpData, [e.target.name]: e.target.value});
   }
 
+  // const navigate = useNavigate();
   const handleSignup = async(event) =>{
     event.preventDefault();
     try{
       const data = await signup(signUpData);
       console.log(data);
       setsignUpData({name: "", email: "", yearGroup: "", major: "", password: ""});
+      // navigate("/dmin")
       alert("Signup Successful");
-      // navigate("/Home.jsx")
     }
     catch(error){
       console.log(error);
@@ -40,7 +42,7 @@ function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [showModal, setShowModal] = useState(null); // Track which modal is open
   const [user, setUser] = useState({
-    name: "John Doe",
+    name: "Kojo Asare",
     major: "Computer Science",
     yearGroup: "2025",
     profilePic: null,
@@ -52,7 +54,7 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* <Navbar showProfile={showProfile} setShowProfile={setShowProfile} user={user} /> */}
+      <Navbar showProfile={showProfile} setShowProfile={setShowProfile} user={user} />
       <main className="main-content">
         {showProfile ? (
           <ProfileView user={user} onUpdateUser={handleProfileUpdate} onClose={() => setShowProfile(false)} />
