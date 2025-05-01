@@ -13,6 +13,10 @@ const swaggerDefinition = {
     {
       url: 'http://localhost:3000/',
       description: 'Development test server'
+    },
+    {
+      url: 'https://backendservice-9fbf.onrender.com/',
+      description: 'Production Server'
     }
   ],
   components: {

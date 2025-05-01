@@ -31,7 +31,7 @@ const BorrowService = {
         RequestID: borrowRequest.RequestID,
         EquipmentID: item.equipmentID,
         Description: item.description || null,
-        SerialNumber: null,
+        SerialNumber: null, 
         Quantity: item.quantity
       });
     }
@@ -49,7 +49,7 @@ const BorrowService = {
     const borrowedItems = await BorrowedItem.findAll({
       where: { RequestID: borrowRequest.RequestID },
       include: [
-        { model: Equipment }
+        { model: Equipment } 
       ]
     });
 
@@ -97,6 +97,7 @@ const BorrowService = {
     }
     await request.save();
 
+    
     const student = await User.findByPk(request.UserID);
 
     const updatedItems = await BorrowedItem.findAll({
@@ -112,10 +113,11 @@ const BorrowService = {
         student.Email,
         requestID,
         returnDate,
-        updatedItems 
+        updatedItems // pass the final items
       );
     }
 
+    // Audit log
     await AuditLog.create({
       UserID: request.UserID,
       RequestID: requestID,
@@ -136,6 +138,7 @@ const BorrowService = {
     request.Status = 'Returned';
     await request.save();
 
+    // Audit log
     const returningUser = await User.findByPk(request.UserID);
     const userLabel = returningUser && returningUser.Role === 'Admin' ? 'the admin' : (returningUser ? returningUser.Name : 'Unknown user');
 
@@ -154,23 +157,27 @@ const BorrowService = {
 
     return request;
   },
-
   sendReminderForDueReturns: async () => {
-    const twoDaysFromNow = new Date();
-    twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
-    twoDaysFromNow.setHours(0, 0, 0, 0); // Set time to midnight for consistency
-
-const dueRequests = await BorrowRequest.findAll({
-  where: {
-    Status: 'Approved',
-    ReturnDate: {
-      [Op.eq]: twoDaysFromNow, 
-    },
-  },
-});
-
+    const now = new Date();
+    
+    const endOfTwoDaysFromNowUTC = new Date(Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + 2, 
+      23, 59, 59, 999
+    ));
+  
+    const dueRequests = await BorrowRequest.findAll({
+      where: {
+        Status: 'Approved', 
+        ReturnDate: {
+          [Op.lte]: endOfTwoDaysFromNowUTC 
+        }
+      }
+    });
+  
     let remindersSent = 0;
-
+  
     for (const request of dueRequests) {
       const student = await User.findByPk(request.UserID);
       if (student) {
@@ -180,7 +187,7 @@ const dueRequests = await BorrowRequest.findAll({
           ReminderDate: new Date(),
           Sent: true
         });
-
+  
         const userLabel = student.Role === 'Admin' ? 'the admin' : student.Name;
         await AuditLog.create({
           UserID: request.UserID,
@@ -189,21 +196,23 @@ const dueRequests = await BorrowRequest.findAll({
           Details: `Reminder sent to ${userLabel} for request #${request.RequestID}`, 
           Timestamp: new Date()
         });
-
+  
         remindersSent++;
       }
     }
-
-    return {remindersSent,twoDaysFromNow};
+  
+    return { remindersSent, cutoffDate: endOfTwoDaysFromNowUTC };
   },
 
   getAllRequests: async (user) => {
     if (user.Role === 'Admin') {
+      
       return await BorrowRequest.findAll({
         order: [['RequestID', 'DESC']],
         include: [User] 
       });
     } else {
+      
       return await BorrowRequest.findAll({
         where: { UserID: user.UserID },
         order: [['RequestID', 'DESC']],
