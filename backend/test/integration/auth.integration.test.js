@@ -1,22 +1,28 @@
-
+/**
+ * Integration Tests for Authentication Endpoints
+ *
+ * Uses Supertest to simulate HTTP requests against the Express app
+ * in an in-memory SQLite database (NODE_ENV=test).
+ * Ensures signup, login, logout, and profile editing flows work end-to-end.
+ */
 
 const request = require('supertest');
-const app = require('../../index');    // your Express app
-const { sequelize } = require('../../src/models'); // the Sequelize instance
+const app = require('../../index');           // Express application entry
+const { sequelize } = require('../../src/models'); // Sequelize instance for DB control
 
 describe('Auth Integration (In-Memory)', () => {
+  // Before running tests, reset and sync all models to the in-memory database
   beforeAll(async () => {
-    // Force-sync all tables in an in-memory DB
     await sequelize.sync({ force: true });
   });
 
+  // After tests complete, close the Sequelize connection
   afterAll(async () => {
-    // Close DB connection
     await sequelize.close();
   });
 
-  let token;
-  let userID;
+  let token;   // Will hold JWT for authenticated requests
+  let userID;  // Will store the created user's ID
 
   describe('POST /api/auth/signup', () => {
     it('signs up a new user', async () => {
@@ -32,16 +38,17 @@ describe('Auth Integration (In-Memory)', () => {
         })
         .expect(201);
 
+      // Verify response body structure and content
       expect(res.body.message).toBe('User registered successfully');
       expect(res.body).toHaveProperty('userID');
-      userID = res.body.userID;
+      userID = res.body.userID; // Save for later tests
     });
 
-    it('fails if email is taken', async () => {
+    it('fails if email is already taken', async () => {
       await request(app)
         .post('/api/auth/signup')
         .send({
-          email: 'test.integration@auth.com', // same as above
+          email: 'test.integration@auth.com', // Duplicate email
           password: 'DifferentPass',
           name: 'Somebody Else',
           role: 'Student',
@@ -53,7 +60,7 @@ describe('Auth Integration (In-Memory)', () => {
   });
 
   describe('POST /api/auth/login', () => {
-    it('logins successfully', async () => {
+    it('logs in successfully with correct credentials', async () => {
       const res = await request(app)
         .post('/api/auth/login')
         .send({ email: 'test.integration@auth.com', password: 'Password123' })
@@ -62,7 +69,7 @@ describe('Auth Integration (In-Memory)', () => {
       expect(res.body.message).toBe('Login successful');
       expect(res.body).toHaveProperty('token');
       expect(res.body).toHaveProperty('user');
-      token = res.body.token;
+      token = res.body.token; // Save token for subsequent authenticated requests
     });
 
     it('fails with invalid password', async () => {
@@ -74,7 +81,7 @@ describe('Auth Integration (In-Memory)', () => {
   });
 
   describe('POST /api/auth/logout', () => {
-    it('logs out (just returns success)', async () => {
+    it('logs out successfully (stateless JWT flow)', async () => {
       const res = await request(app)
         .post('/api/auth/logout')
         .set('Authorization', `Bearer ${token}`)
@@ -85,7 +92,7 @@ describe('Auth Integration (In-Memory)', () => {
   });
 
   describe('PUT /api/auth/edit', () => {
-    it('edits user details with valid token', async () => {
+    it('edits user details when authenticated', async () => {
       const res = await request(app)
         .put('/api/auth/edit')
         .set('Authorization', `Bearer ${token}`)
@@ -93,12 +100,13 @@ describe('Auth Integration (In-Memory)', () => {
         .expect(200);
 
       expect(res.body.message).toBe('User details updated successfully');
+      // Verify the updated fields in the response
       expect(res.body.user.Name).toBe('UpdatedName');
       expect(res.body.user.major).toBe('NewMajor');
       expect(res.body.user.yearGroup).toBe(2027);
     });
 
-    it('fails with no token', async () => {
+    it('fails without an authorization token', async () => {
       await request(app)
         .put('/api/auth/edit')
         .send({ name: 'No Token' })
