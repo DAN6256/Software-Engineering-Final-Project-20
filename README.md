@@ -174,10 +174,10 @@ FabTrack was developed using Agile Scrum with:
 
 ## Team
 
-* Ewura Ama Etruwaa Sam
-* Daniel Tunyinko
-* Dave Leori Donbo
-* Chika Perpetual Amanna
+* Ewura Ama Etruwaa Sam - @EwuraAmaSam 
+* Daniel Tunyinko – @Tunyinko and @DAN6256 
+* Dave Leori Donbo - @davedonbo 
+* Chika Perpetual Amanna  @ AmannaP 
 
 ## Future Enhancements
 
