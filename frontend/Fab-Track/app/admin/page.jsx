@@ -1,5 +1,5 @@
 "use client";
-
+// Import UI components
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -39,35 +39,43 @@ import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 
 export default function AdminDashboard() {
+  // Initialise hooks and state variables
   const router = useRouter();
   const { toast } = useToast();
+  // Loading states
   const [isLoading, setIsLoading] = useState(true);
   const [isRequestsLoading, setIsRequestsLoading] = useState(true);
   const [isApprovedRequestsLoading, setIsApprovedRequestsLoading] = useState(true);
+  // Data states
   const [equipmentList, setEquipmentList] = useState([]);
   const [requestsList, setRequestsList] = useState([]);
   const [approvedRequestsList, setApprovedRequestsList] = useState([]);
+  // UI state management
   const [expandedRequests, setExpandedRequests] = useState({});
   const [expandedApprovedRequests, setExpandedApprovedRequests] = useState({});
+  // Request item management
   const [requestItems, setRequestItems] = useState({});
   const [approvedRequestItems, setApprovedRequestItems] = useState({});
   const [loadingItems, setLoadingItems] = useState({});
   const [loadingApprovedItems, setLoadingApprovedItems] = useState({});
+  // Form data states
   const [serialNumbers, setSerialNumbers] = useState({});
   const [returnDates, setReturnDates] = useState({});
   const [itemApprovals, setItemApprovals] = useState({});
+  // Processing states
   const [approvingRequests, setApprovingRequests] = useState({});
   const [editingEquipment, setEditingEquipment] = useState(null);
   const [editName, setEditName] = useState("");
 
+  // Dashboard statistics
   const stats = {
     totalUsers: approvedRequestsList.length,
     totalEquipment: equipmentList.length,
     pendingRequests: requestsList.length,
-    // overdueItems: 0,
   };
-
+// Fetch initial data on component mount
   useEffect(() => {
+    // Fetch equipment list from the API
     const fetchEquipment = async () => {
       setIsLoading(true);
 
@@ -111,7 +119,7 @@ export default function AdminDashboard() {
         setIsLoading(false);
       }
     };
-
+// Fetch pending requests from API
     const fetchRequests = async () => {
       setIsRequestsLoading(true);
 
@@ -155,7 +163,7 @@ export default function AdminDashboard() {
         setIsRequestsLoading(false);
       }
     };
-
+// Fetch all approved requests from API
     const fetchAllRequests = async () => {
       setIsApprovedRequestsLoading(true);
 
@@ -211,7 +219,7 @@ export default function AdminDashboard() {
     fetchRequests();
     fetchAllRequests();
   }, []);
-
+// Fetches items for a specific pending request
   const fetchRequestItems = async (requestId) => {
     setLoadingItems(prev => ({ ...prev, [requestId]: true }));
     
@@ -278,7 +286,7 @@ export default function AdminDashboard() {
       setLoadingItems(prev => ({ ...prev, [requestId]: false }));
     }
   };
-
+// Fetches items for a specific approved request
   const fetchApprovedRequestItems = async (requestId) => {
     setLoadingApprovedItems(prev => ({ ...prev, [requestId]: true }));
     
@@ -326,7 +334,7 @@ export default function AdminDashboard() {
       setLoadingApprovedItems(prev => ({ ...prev, [requestId]: false }));
     }
   };
-
+// Toggles the expansion state of a pending request and fetches items if needed
   const toggleRequestDetails = (requestId) => {
     setExpandedRequests(prev => {
       const newState = { ...prev, [requestId]: !prev[requestId] };
@@ -338,7 +346,7 @@ export default function AdminDashboard() {
       return newState;
     });
   };
-
+// Toggles the expansion state of an approved request and fetches items if needed
   const toggleApprovedRequestDetails = (requestId) => {
     setExpandedApprovedRequests(prev => {
       const newState = { ...prev, [requestId]: !prev[requestId] };
@@ -350,7 +358,7 @@ export default function AdminDashboard() {
       return newState;
     });
   };
-
+// Handles changes to serial number input fields
   const handleSerialNumberChange = (requestId, equipmentId, value) => {
     setSerialNumbers(prev => ({
       ...prev,
@@ -360,7 +368,7 @@ export default function AdminDashboard() {
       }
     }));
     
-    // Also update the serial number in the item approvals
+    // Update the serial number in the item approvals
     setItemApprovals(prev => {
       if (!prev[requestId] || !prev[requestId][equipmentId]) return prev;
       
@@ -576,7 +584,7 @@ export default function AdminDashboard() {
     setItemApprovals(prev => {
       const newApprovals = {...prev};
       const items = requestItems[requestId] || [];
-      
+      // Mark all items as approved
       items.forEach(item => {
         const itemId = item.BorrowedItemID || item.EquipmentID;
         if (!newApprovals[requestId]) newApprovals[requestId] = {};
@@ -618,7 +626,7 @@ export default function AdminDashboard() {
       description: "All items in this request have been marked for rejection",
     });
   };
-
+// Formats a date string to a localized date format
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     try {
@@ -627,7 +635,7 @@ export default function AdminDashboard() {
       return "Invalid Date";
     }
   };
-
+// Sends reminder emails to users with overdue items
   const handleSendReminders = async () => {
     const token = localStorage.getItem("authToken");
   
@@ -670,7 +678,7 @@ export default function AdminDashboard() {
       });
     }
   };
-
+// Handles editing equipment 
   const handleEditEquipment = async (equipmentId) => {
     const newName = prompt("Enter new equipment name:");
     if (!newName) return;
@@ -710,7 +718,7 @@ export default function AdminDashboard() {
       });
     }
   };
-  
+  // Deletes equipment
   const handleDeleteEquipment = async (equipmentId) => {
     if (!confirm("Are you sure you want to delete this equipment?")) return;
   
@@ -748,12 +756,12 @@ export default function AdminDashboard() {
       });
     }
   };
-
+// Initiates editing mode for an equipment item
   const handleEditClick = (equipment) => {
     setEditingEquipment(equipment.id);
     setEditName(equipment.name);
   };
-  
+  // Saves the edited equipment name
   const handleSaveEdit = async (equipmentId) => {
     const token = localStorage.getItem("authToken");
     
@@ -777,7 +785,7 @@ export default function AdminDashboard() {
         title: "Success",
         description: data.message || "Equipment updated successfully",
       });
-  
+  // Exit editing mode and refresh equipment list
       setEditingEquipment(null);
       fetchEquipment();
     } catch (err) {
@@ -788,7 +796,7 @@ export default function AdminDashboard() {
       });
     }
   };
-  
+  // Cancels the editing mode without saving changes
   const handleCancelEdit = () => {
     setEditingEquipment(null);
   };

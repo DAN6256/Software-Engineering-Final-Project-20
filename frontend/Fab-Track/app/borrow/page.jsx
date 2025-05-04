@@ -16,16 +16,18 @@ import Link from "next/link";
 const BASE_URL_API = process.env.NEXT_PUBLIC_BASE_URL_API;
 
 export default function BorrowPage() {
+  // Authentication and routing hooks
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+   // State management
   const [equipment, setEquipment] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [descriptions, setDescriptions] = useState({});
   const [collectionDateTime, setCollectionDateTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+// Fetch equipment list when user is loaded and is a student
   useEffect(() => {
     const fetchEquipment = async () => {
       const token = localStorage.getItem("authToken");
@@ -65,12 +67,14 @@ export default function BorrowPage() {
       fetchEquipment();
     }
   }, [user, toast]);
-
+// Toggles selection of an equipment item
   const handleSelectItem = (item) => {
     const isSelected = selectedItems.some(selected => selected.EquipmentID === item.EquipmentID);
     
     if (isSelected) {
+      // Remove item from selection
       setSelectedItems(selectedItems.filter(i => i.EquipmentID !== item.EquipmentID));
+      // Clean up related state
       setQuantities(prev => {
         const newQuantities = { ...prev };
         delete newQuantities[item.EquipmentID];
@@ -82,22 +86,23 @@ export default function BorrowPage() {
         return newDescriptions;
       });
     } else {
+      // Add item to selection with default values
       setSelectedItems([...selectedItems, item]);
       setQuantities(prev => ({ ...prev, [item.EquipmentID]: 1 }));
       setDescriptions(prev => ({ ...prev, [item.EquipmentID]: "" }));
     }
   };
-
+  // Updates description for a selected item
   const handleDescriptionChange = (equipmentID, value) => {
     setDescriptions(prev => ({
       ...prev,
       [equipmentID]: value
     }));
   };
-
+// Handles form submission for borrow request
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+     // Validation checks
     if (selectedItems.length === 0) {
       toast({
         title: "No items selected",
@@ -119,6 +124,7 @@ export default function BorrowPage() {
     setIsSubmitting(true);
 
     try {
+      // Prepare request data
       const requestData = {
         items: selectedItems.map(item => ({
           equipmentID: item.EquipmentID,
@@ -127,7 +133,7 @@ export default function BorrowPage() {
         })),
         collectionDateTime: new Date(collectionDateTime).toISOString()
       };
-
+    // Submit to the API
       const response = await fetch(`${BASE_URL_API}/api/borrow/request`, {
         method: "POST",
         headers: {
@@ -140,17 +146,17 @@ export default function BorrowPage() {
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.message || "Failed to submit request");
-      
+      // Success handling
       toast({
         title: "Success!",
         description: "Borrow request submitted successfully"
       });
-
+      // Reset form state
       setSelectedItems([]);
       setQuantities({});
       setDescriptions({});
       setCollectionDateTime("");
-
+      // Redirect to dashboard
       router.push("/dashboard");
 
     } catch (error) {
@@ -160,7 +166,7 @@ export default function BorrowPage() {
         description: error.message || "Failed to submit request",
         variant: "destructive"
       });
-
+      // Redirect to dashboard
       if (error.message.includes("Unauthorized")) {
         localStorage.removeItem('authToken');
         router.push("/login");
@@ -169,7 +175,7 @@ export default function BorrowPage() {
       setIsSubmitting(false);
     }
   };
-
+    // Show loading state while authenticating
   if (authLoading || !user) {
     return <div className="flex justify-center p-8">
       <Loader2 className="animate-spin" />
@@ -213,6 +219,7 @@ export default function BorrowPage() {
         </div>
 
         <div>
+          {/* Request summary panel (right side) */}
           <Card>
             <CardHeader>
               <CardTitle>Your Request</CardTitle>
@@ -288,7 +295,7 @@ export default function BorrowPage() {
                     required
                   />
                 </div>
-
+                    {/* Submit button */}
                 <Button 
                   type="submit" 
                   className="w-full"

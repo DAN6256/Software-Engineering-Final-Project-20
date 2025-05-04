@@ -1,5 +1,5 @@
 "use client";
-
+// Import UI components
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
@@ -13,11 +13,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 
+// API base URL from environment variables
 const BASE_URL_API = process.env.NEXT_PUBLIC_BASE_URL_API;
 
 export default function Dashboard() {
+  // Authentication and routing
   const { user, isLoading: authLoading, isUsingMockData } = useAuth();
   const router = useRouter();
+  // State management
   const [requests, setRequests] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [approvedRequests, setApprovedRequests] = useState([]);
@@ -25,13 +28,13 @@ export default function Dashboard() {
   const [expandedRequests, setExpandedRequests] = useState({});
   const [requestItems, setRequestItems] = useState({});
   const [loadingItems, setLoadingItems] = useState({});
-
+// Redirect to login if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
     }
   }, [user, authLoading, router]);
-
+  // Secure fetch wrapper that handles authentication
   const secureFetch = async (url) => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -44,7 +47,7 @@ export default function Dashboard() {
         "Content-Type": "application/json"
       }
     });
-
+// Handle unauthorized responses
     if (response.status === 401) {
       localStorage.removeItem("authToken");
       router.push("/login");
@@ -53,7 +56,7 @@ export default function Dashboard() {
 
     return response;
   };
-
+// Fetches items for a specific request
   const fetchRequestItems = async (requestId) => {
     setLoadingItems(prev => ({ ...prev, [requestId]: true }));
     
@@ -73,7 +76,7 @@ export default function Dashboard() {
       setLoadingItems(prev => ({ ...prev, [requestId]: false }));
     }
   };
-
+// Toggles the expanded state of a request and fetches items if needed
   const toggleRequestDetails = (requestId) => {
     setExpandedRequests(prev => {
       const newState = { ...prev, [requestId]: !prev[requestId] };
@@ -83,7 +86,7 @@ export default function Dashboard() {
       return newState;
     });
   };
-
+// Fetches all requests from the API
   const fetchRequests = async () => {
     try {
       setIsLoading(true);
@@ -123,13 +126,13 @@ export default function Dashboard() {
       setIsLoading(false);
     }
   };
-
+// Fetch requests when user is loaded
   useEffect(() => {
     if (user) {
       fetchRequests();
     }
   }, [user]);
-
+// Show loading state while authenticating
   if (authLoading || !user) {
     return (
       <div className="container mx-auto py-8 flex items-center justify-center min-h-[calc(100vh-4rem)]">
@@ -137,7 +140,7 @@ export default function Dashboard() {
       </div>
     );
   }
-
+// Dashboard statistics
   const stats = {
     totalRequests: requests.length,
     pendingRequests: pendingRequests.length,
@@ -146,6 +149,7 @@ export default function Dashboard() {
 
   return (
     <div className="container mx-auto py-8">
+      {/* Demo mode warning banner */}
       {isUsingMockData && (
         <Alert className="mb-6 bg-amber-50 border-amber-200">
           <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -155,13 +159,13 @@ export default function Dashboard() {
           </AlertDescription>
         </Alert>
       )}
-
+      {/* Dashboard header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="text-gray-600">Welcome back, {user.name}</p>
         </div>
-
+{/* Request equipment button (for students) */}
         {user.role === "Student" && (
           <Link href="/borrow">
             <Button className="flex items-center gap-2">
@@ -170,7 +174,7 @@ export default function Dashboard() {
           </Link>
         )}
       </div>
-
+          {/* Stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="border-l-4 border-blue-500">
           <CardHeader className="pb-2">
@@ -183,7 +187,7 @@ export default function Dashboard() {
             <div className="text-3xl font-bold">{stats.totalRequests}</div>
           </CardContent>
         </Card>
-
+        {/* Pending requests card */}
         <Card className="border-l-4 border-amber-500">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -195,7 +199,7 @@ export default function Dashboard() {
             <div className="text-3xl font-bold">{stats.pendingRequests}</div>
           </CardContent>
         </Card>
-
+        {/* Approved requests card */}
         <Card className="border-l-4 border-green-500">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
@@ -208,14 +212,14 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
+        {/* Request tabs */}
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="all">All Requests</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="approved">Approved</TabsTrigger>
         </TabsList>
-
+        {/* All requests tab */}
         <TabsContent value="all">
           {isLoading ? (
             <div className="flex justify-center py-8">
@@ -251,7 +255,7 @@ export default function Dashboard() {
                       }
                     </Button>
                   </CardFooter>
-                  
+                  {/* Expanded request items */}
                   {expandedRequests[request.RequestID] && (
                     <div className="px-6 pb-4">
                       {loadingItems[request.RequestID] ? (
@@ -302,7 +306,7 @@ export default function Dashboard() {
             </div>
           )}
         </TabsContent>
-
+        {/* Pending requests tab */}
         <TabsContent value="pending">
           {isLoading ? (
             <div className="flex justify-center py-8">
@@ -380,7 +384,7 @@ export default function Dashboard() {
             </div>
           )}
         </TabsContent>
-
+        {/* Approved requests tab */}
         <TabsContent value="approved">
           {isLoading ? (
             <div className="flex justify-center py-8">
@@ -415,7 +419,7 @@ export default function Dashboard() {
                       }
                     </Button>
                   </CardFooter>
-                  
+                  {/* Expanded request items with serial numbers */}
                   {expandedRequests[request.RequestID] && (
                     <div className="px-6 pb-4">
                       {loadingItems[request.RequestID] ? (

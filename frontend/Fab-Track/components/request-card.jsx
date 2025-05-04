@@ -1,5 +1,6 @@
 "use client"
 
+// Import reusable UI components
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,11 +11,13 @@ import { approveRequest, returnRequest } from "@/lib/api"
 import { useToast } from "@/components/ui/use-toast"
 import Link from "next/link"
 
+// Component to display a request card with actions and details
 export default function RequestCard({ request, isAdmin }) {
   const [isLoading, setIsLoading] = useState(false)
   const [status, setStatus] = useState(request.status)
   const { toast } = useToast()
 
+  // Handles the approval of a request
   const handleApprove = async () => {
     setIsLoading(true)
     try {
@@ -25,6 +28,7 @@ export default function RequestCard({ request, isAdmin }) {
         description: "The borrow request has been approved successfully.",
       })
     } catch (error) {
+      // Show error toast
       toast({
         variant: "destructive",
         title: "Action failed",
@@ -34,7 +38,7 @@ export default function RequestCard({ request, isAdmin }) {
       setIsLoading(false)
     }
   }
-
+   // Handles marking a request as returned
   const handleReturn = async () => {
     setIsLoading(true)
     try {
@@ -54,7 +58,7 @@ export default function RequestCard({ request, isAdmin }) {
       setIsLoading(false)
     }
   }
-
+// Renders the appropriate badge based on the current status
   const getStatusBadge = () => {
     switch (status) {
       case "pending":

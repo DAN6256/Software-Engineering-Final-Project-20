@@ -1,9 +1,11 @@
 "use client"
 
+// Import UI components
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MoreVertical, Mail, Phone } from "lucide-react"
 
+// // Reusable UI card component that displays user information
 export default function UserCard({ user }) {
   return (
     <div className="border rounded-lg p-4 bg-white shadow-sm">
