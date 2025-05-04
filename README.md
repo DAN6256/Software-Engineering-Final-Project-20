@@ -81,7 +81,7 @@ project/
 1. Clone repository
 
 ```bash
-git clone [https://github.com/DAN6256/Software-Engineering-Final-Project-20]
+git clone https://github.com/DAN6256/Software-Engineering-Final-Project-20
 cd Software-Engineering-Final-Project-20/backend
 npm install
 ```
