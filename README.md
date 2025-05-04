@@ -60,6 +60,10 @@ project/
 │   ├── routes/       # API route definitions
 │   ├── middleware/   # JWT and other middlewares
 │   └── tests/        # Unit and integration tests
+|   |__config
+|   |__index.js
+|   |__package.json
+|   |__package-lock.json
 └── frontend/
     ├── components/   # Reusable UI components
     ├── app/          # Application pages and layouts
