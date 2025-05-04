@@ -1,5 +1,6 @@
 "use client"
 
+// Import UI components
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -15,7 +16,7 @@ import {
 import { Menu, User, LogOut } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
-// Check if we're running on the client side
+// Check if it's running on the client side
 const isClient = typeof window !== "undefined"
 
 export default function Navbar() {
@@ -79,14 +80,6 @@ export default function Navbar() {
                 Borrow Equipment
               </Link>
             )}
-            {/* <Link
-              href="/about"
-              className={`text-sm ${
-                pathname === "/about" ? "text-primary font-medium" : "text-gray-600 hover:text-primary"
-              }`}
-            >
-              About
-            </Link> */}
           </nav>
         </div>
 

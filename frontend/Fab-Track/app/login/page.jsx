@@ -1,5 +1,5 @@
 "use client"
-
+// Import necessary libraries and components
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -14,22 +14,28 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 
 
 export default function LoginPage() {
+  // State management
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showDemoAlert, setShowDemoAlert] = useState(false)
+  // Hooks
   const { login } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
 
   console.log("Form submitted");
+  /**
+   * Handles form submission for user login
+   * @param {Event} e - Form submit event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
     setShowDemoAlert(false)
 
     try {
-      // Send the email and password to the API
+      // Send login credentials to the API
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL_API}/api/auth/login`, {
         method: "POST",
         headers: {
@@ -87,11 +93,13 @@ export default function LoginPage() {
 
   return (
     <div className="container mx-auto flex items-center justify-center min-h-[calc(100vh-4rem)] py-8">
+      {/* Login card container */}
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Login to FabTrack</CardTitle>
           <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
+        {/* Login form */}
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {showDemoAlert && (
@@ -102,7 +110,7 @@ export default function LoginPage() {
                 </AlertDescription>
               </Alert>
             )}
-
+            {/* Email input field */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -114,6 +122,7 @@ export default function LoginPage() {
                 required
               />
             </div>
+            {/* Password input field */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
@@ -130,6 +139,7 @@ export default function LoginPage() {
               />
             </div>
           </CardContent>
+          {/* Form footer with submit button and signup link */}
           <CardFooter className="flex flex-col">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (

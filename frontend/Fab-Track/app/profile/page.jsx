@@ -14,26 +14,30 @@ import {
 } from "@/components/ui/card";
 
 export default function ProfilePage() {
+  // State management
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Hooks
   const router = useRouter();
   const { toast } = useToast();
-
+// Fetches and decodes user data from JWT token on component mount
   useEffect(() => {
     const fetchUserData = () => {
       try {
+        // Get JWT token from localStorage
         const token = localStorage.getItem("authToken");
         
         if (!token) {
           throw new Error("No authentication token found");
         }
-
+        // Decode JWT to get user information
         const decoded = jwt_decode.jwtDecode(token);
         setUser({
           email: decoded.email || decoded.Email,
           role: decoded.Role || decoded.role,
         });
       } catch (error) {
+        // Show error and redirect if token is invalid
         toast({
           variant: "destructive",
           title: "Error",
@@ -47,16 +51,16 @@ export default function ProfilePage() {
 
     fetchUserData();
   }, []);
-
+// Handles user logout by removing token and redirecting
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     router.push("/login");
   };
-
+// Handles closing the profile view by navigating back
   const handleClose = () => {
     router.back(); // Go back to previous page
   };
-
+// Loading state UI
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -64,7 +68,7 @@ export default function ProfilePage() {
       </div>
     );
   }
-
+// No user data state UI
   if (!user) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -75,7 +79,9 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto py-8">
+      {/* Profile card container */}
       <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        {/* Card header with title and close button */}
         <div className="bg-gray-100 px-6 py-4 border-b flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-800">Profile</h1>
           <Button 
@@ -87,20 +93,21 @@ export default function ProfilePage() {
             <X className="h-5 w-5" />
           </Button>
         </div>
-        
+         {/* Card content with user information */}
         <div className="p-6">
           <div className="space-y-6">
+            {/* Email section */}
             <div>
               <p className="text-sm text-gray-500">Email</p>
               <p className="font-medium mt-1">{user.email}</p>
             </div>
-            
+            {/* Role section */}
             <div>
               <p className="text-sm text-gray-500">Role</p>
               <p className="font-medium mt-1 capitalize">{user.role.toLowerCase() || 'user'}</p>
             </div>
           </div>
-
+          {/* Logout button section */}
           <div className="mt-8 pt-4 border-t">
             <Button 
               variant="destructive" 

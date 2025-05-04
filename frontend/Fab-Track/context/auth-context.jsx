@@ -3,8 +3,10 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+// Create authentication context
 const AuthContext = createContext();
 
+// Provider component to wrap app and manage auth state
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +22,7 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Check if a token exists and validates if it is first load
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('authToken');
@@ -55,6 +58,7 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
+  // Login method to authenticate user and store token
   const login = async (email, password) => {
     setIsLoading(true);
     try {
@@ -70,7 +74,7 @@ export function AuthProvider({ children }) {
       if (!response.ok || !data) {
         throw new Error(data?.message || 'Login failed');
       }
-
+      // Store token
       localStorage.setItem('authToken', data.token);
       
       // Create user object with fallbacks
@@ -91,13 +95,14 @@ export function AuthProvider({ children }) {
       setIsLoading(false);
     }
   };
-
+// Logout method to clear session and redirect to login
   const logout = () => {
     localStorage.removeItem('authToken');
     setUser(null);
     router.push('/login');
   };
 
+  // Bundle context values to be accessible throughout the app
   const value = {
     user,
     isLoading,
@@ -106,13 +111,14 @@ export function AuthProvider({ children }) {
     logout
   };
 
+  // Provide context to child components
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
-
+// Custom hook for easier access to auth context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {

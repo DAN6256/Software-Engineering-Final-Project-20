@@ -1,5 +1,6 @@
 "use client"
 
+// Import UI components
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MoreVertical, Box, Calendar } from "lucide-react"
